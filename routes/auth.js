@@ -7,12 +7,6 @@ const template = require('../lib/template.js');
 const session = require('express-session');
 
 
-var authData = {
-  email:'hobbit09@gmail.com',
-  password:'111111',
-  nickname:'kimew'
-}
-
 router.get('/login', (request, response) => {
   var title = `WEB - login`
   var list = template.list(request.list);

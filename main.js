@@ -27,6 +27,23 @@ var authData = {
 var passport = require('passport')
   , LocalStrategy = require('passport-local').Strategy;
 
+  app.use(passport.initialize());
+  app.use(passport.session());
+
+  passport.serializeUser(function(user, done) {
+    console.log('serializeUser', user);
+    done(null, user.email);
+    // done(null, user.id);
+  });
+  
+  passport.deserializeUser(function(id, done) {
+    console.log('deserializeUser', id);
+    done(null, authData)
+    // User.findById(id, function(err, user) {
+    //   done(err, user);
+    // });
+  });
+
   passport.use(new LocalStrategy(
     {
       usernameField: 'email',
@@ -36,7 +53,7 @@ var passport = require('passport')
       console.log('LocalStrategy',username,password);
       if(username === authData.email){
         console.log(1);
-        if(password === authData.passport){
+        if(password === authData.password){
           console.log(2);
           return done(null, authData);
         } else{
@@ -54,9 +71,12 @@ var passport = require('passport')
     }
   )); 
 
-app.post('/auth/login_process',
-  passport.authenticate('local', { successRedirect: '/',
-                                   failureRedirect: '/auth/login' }));
+  app.post('/auth/login_process', passport.authenticate('local', {failureRedirect : '/auth/login'}) , (req, res) => {
+    req.session.save( () => {
+            res.redirect('/')
+    })
+})
+
 
 app.get('*',function(request,response,next){
   fs.readdir('./data',(error, filelist)=>{
