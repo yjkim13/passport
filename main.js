@@ -1,12 +1,12 @@
-const express = require('express');
-const app = express();
-const port = 3000;
-const fs = require('fs');
-const bodyParser = require('body-parser')
-const compression = require('compression')
+var express = require('express');
+var app = express();
+var port = 3000;
+var fs = require('fs');
+var bodyParser = require('body-parser')
+var compression = require('compression')
 var session = require('express-session')
 var FileStore = require('session-file-store')(session);
-
+var flash = require('connect-flash');
 
 app.use(express.static('public'))
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -17,6 +17,8 @@ app.use(session({
   saveUninitialized: true,
   store: new FileStore()
 }))
+
+app.use(flash());
 
 var authData = {
   email:'hobbit09@gmail.com',
@@ -55,7 +57,9 @@ var passport = require('passport')
         console.log(1);
         if(password === authData.password){
           console.log(2);
-          return done(null, authData);
+          return done(null, authData, {
+            message: 'Welcome!'
+          });
         } else{
           console.log(3);
           return done(null, false, {
@@ -71,11 +75,31 @@ var passport = require('passport')
     }
   )); 
 
-  app.post('/auth/login_process', passport.authenticate('local', {failureRedirect : '/auth/login'}) , (req, res) => {
-    req.session.save( () => {
+app.post('/auth/login_process', (req, res, next) => {
+  passport.authenticate('local',(err, user, info) => {
+      if(req.session.flash) {
+          req.session.flash = {}
+      }
+      req.flash('message', info.message)
+      req.session.save(() => {
+            if (err) { 
+                return next(err)
+            }
+            if (!user) {
+                return res.redirect('/auth/login')
+            } 
+        req.logIn(user, (err) => {
+          if (err) {
+            return next(err)
+          }
+          return req.session.save(() => {
             res.redirect('/')
-    })
+          })
+        })
+      })
+  })(req, res, next)
 })
+
 
 
 app.get('*',function(request,response,next){

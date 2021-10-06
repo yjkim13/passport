@@ -1,10 +1,10 @@
 var express = require('express');
 var router = express.Router();
-const path = require('path');
-const fs = require('fs');
-const sanitizeHtml = require('sanitize-html');
-const template = require('../lib/template.js');
-const auth = require('../lib/auth.js');
+var path = require('path');
+var fs = require('fs');
+var sanitizeHtml = require('sanitize-html');
+var template = require('../lib/template.js');
+var auth = require('../lib/auth.js');
 
 //페이지 생성 구현
 router.get('/create', (request, response) => {
