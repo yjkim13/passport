@@ -5,9 +5,7 @@ var auth = require('../lib/auth.js');
 
 //route, routing
 router.get('/', (request, response) => {
-    console.log('/', request.user);
     var fmsg = request.flash();
-    console.log(fmsg);
     var feedback = '';
     if(fmsg.message){
       feedback = fmsg.message;
